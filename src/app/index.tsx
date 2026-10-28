@@ -14,6 +14,7 @@ import {
   View
 } from 'react-native';
 
+import { useRouter } from 'expo-router';
 import {
   addDoc,
   collection,
@@ -88,7 +89,7 @@ export default function App() {
     try {
       setLoading(true);
       const snapshot = await getDocs(filmesRef);
-      
+
       if (snapshot.empty) {
         for (const item of FILMES_INICIAIS) {
           await addDoc(filmesRef, item);
@@ -110,6 +111,10 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  const router= useRouter();
+
+  
 
   useEffect(() => {
     carregarFilmes();
@@ -175,11 +180,19 @@ export default function App() {
     );
   };
 
-  const filmesFiltrados = filmes.filter(filme => 
+  const filmesFiltrados = filmes.filter(filme =>
     filme.nome.toLowerCase().includes(busca.toLowerCase()) ||
     filme.genero.toLowerCase().includes(busca.toLowerCase()) ||
     filme.diretor.toLowerCase().includes(busca.toLowerCase())
   );
+
+  const handleAlterar = (id: string) => {
+    router.push({
+      pathname: '/alterar_filme',
+      params: {
+         idParam: id }
+    });
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -190,7 +203,7 @@ export default function App() {
           <Text style={styles.headerLogo}>🎬</Text>
           <Text style={styles.headerTitle}>CineTop</Text>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.btnNovoFilme}
           onPress={() => setModalVisivel(true)}
         >
@@ -226,11 +239,17 @@ export default function App() {
                   <Text style={styles.cardTitle}>{item.nome}</Text>
                   <Text style={styles.cardDirector}>Direção: {item.diretor}</Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => item.id && handleExcluir(item.id, item.nome)}
                   style={styles.btnExcluir}
                 >
                   <Text style={styles.btnExcluirTexto}>🗑️</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => item.id && handleAlterar(item.id)}
+                  style={styles.btnAlterar}
+                >
+                  <Text style={styles.btnAlterarTexto}>✏️</Text>
                 </TouchableOpacity>
               </View>
 
@@ -427,7 +446,7 @@ const styles = StyleSheet.create<any>({
   },
   btnExcluir: {
     padding: 6,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: 'rgba(239, 68, 68, 0.23)',
     borderRadius: 6,
   },
   btnExcluirTexto: {
@@ -517,5 +536,16 @@ const styles = StyleSheet.create<any>({
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  btnAlterar: {
+    padding: 6,
+    backgroundColor: 'rgba(249, 224, 3, 0.17)',
+    borderRadius: 6,
+  },
+  btnAlterarTexto: {
+    fontSize: 16,
+  },
+  view_campo: {
+    marginBottom: 12,
   },
 });
